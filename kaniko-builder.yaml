@@ -14,8 +14,8 @@ spec:
       args:
         - '--dockerfile=/workspace/Dockerfile'
         - '--context=/workspace/'
-        - '--destination=${DOCKER_REGISTRY}/${IMAGE_NAME}:${TAG}'
-        - '--verbosity=debug'  # Added verbose logging
+        - '--destination=${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}'
+        - '--verbosity=debug'
       env:
         - name: DOCKER_CONFIG
           value: /kaniko/.docker
@@ -24,10 +24,16 @@ spec:
           mountPath: /kaniko/.docker
         - name: workspace
           mountPath: /workspace
+    - name: chronoscd
+      image: lance0821/chronoscd:latest
+      command: ['tail', '-f', '/dev/null'] # Keep the container alive
+      tty: true
+      volumeMounts:
+        - name: workspace
+          mountPath: /workspace
   volumes:
     - name: kaniko-secret
       secret:
         secretName: dockerhub-regcred
     - name: workspace
       emptyDir: {}
-  restartPolicy: Never  # Ensure the pod does not restart indefinitely
