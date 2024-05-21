@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: jenkins-agent
+  namespace: jenkins
+spec:
+  serviceAccountName: jenkins-service-account
+  containers:
+    - name: jnlp
+      image: jenkins/inbound-agent:latest
+      args: ['${computer.jnlpmac}', '${computer.name}']
+    - name: kaniko
+      image: gcr.io/kaniko-project/executor:latest
+      args:
+        - '--dockerfile=/workspace/Dockerfile'
+        - '--context=/workspace/'
+        - '--destination=${DOCKER_REGISTRY}/${IMAGE_NAME}:${TAG}'
+      volumeMounts:
+        - name: kaniko-secret
+          mountPath: /kaniko/.docker
+        - name: workspace
+          mountPath: /workspace
+  volumes:
+    - name: kaniko-secret
+      secret:
+        secretName: dockerhub-regcred
+    - name: workspace
+      emptyDir: {}
+  restartPolicy: Never  # Ensure the pod does not restart indefinitely
