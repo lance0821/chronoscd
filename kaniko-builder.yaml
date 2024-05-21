@@ -14,7 +14,8 @@ spec:
       args:
         - '--dockerfile=/workspace/Dockerfile'
         - '--context=/workspace/'
-        - '--destination=${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG}'
+        - '--destination=docker.io/${DOCKER_USER}/${APP_NAME}:${IMAGE_TAG}'
+        - '--destination=docker.io/${DOCKER_USER}/${APP_NAME}:latest'
         - '--verbosity=debug'
       env:
         - name: DOCKER_CONFIG
@@ -24,16 +25,10 @@ spec:
           mountPath: /kaniko/.docker
         - name: workspace
           mountPath: /workspace
-    - name: chronoscd
-      image: lance0821/chronoscd:latest
-      command: ['tail', '-f', '/dev/null'] # Keep the container alive
-      tty: true
-      volumeMounts:
-        - name: workspace
-          mountPath: /workspace
   volumes:
     - name: kaniko-secret
       secret:
         secretName: dockerhub-regcred
     - name: workspace
       emptyDir: {}
+  restartPolicy: Never
