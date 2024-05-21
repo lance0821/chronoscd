@@ -33,12 +33,10 @@ pipeline {
 
     stage('Build & Push with Kaniko') {
       steps {
-        container(name: 'kaniko', shell: '/busybox/sh') {
-          script {
-            sh '''#!/busybox/sh
-              /kaniko/executor --dockerfile `pwd`/Dockerfile --context `pwd` --destination=${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG} --destination=${DOCKER_REGISTRY}/${IMAGE_NAME}:latest --verbosity=debug
-            '''
-          }
+        container('kaniko') {
+          sh '''#!/busybox/sh
+            /kaniko/executor --dockerfile=/workspace/Dockerfile --context=/workspace --destination=${DOCKER_REGISTRY}/${IMAGE_NAME}:${IMAGE_TAG} --destination=${DOCKER_REGISTRY}/${IMAGE_NAME}:latest --verbosity=debug
+          '''
         }
       }
     }
